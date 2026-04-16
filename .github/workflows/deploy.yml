@@ -40,24 +40,9 @@ jobs:
       - name: Debug
         run: ls -la dist/_nuxt/content 2>&1 || true
 
-      - name: Upload
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist/
-
-  Deploy:
-    needs: Build
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: Support
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - id: deployment
-        name: Deploy
-        uses: actions/deploy-pages@v4
+      - name: Deploy
+        run: aws s3 sync ./dist s3://${{ secrets.STAGING_AWS_S3_BUCKET }}/support --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.STAGING_AWS_REGION }}
